@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Cacau Show</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+<style>
+*{box-sizing:border-box;}
+
+body{
+margin:0;
+font-family:Inter,Segoe UI,sans-serif;
+background:#1E1B18;
+color:#F5EBDD;
+overflow-x:hidden;
+}
+
+header{
+padding:22px;
+font-size:22px;
+font-weight:600;
+background:#4B2E2B;
+text-align:center;
+}
+
+.container{
+padding:20px;
+max-width:1400px;
+margin:auto;
+}
+
+.kpis{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+gap:12px;
+margin-bottom:25px;
+}
+
+.kpi{
+background:#4B2E2B;
+padding:12px;
+border-radius:8px;
+text-align:center;
+}
+
+.kpi h4{
+margin:0;
+font-size:11px;
+opacity:0.8;
+}
+
+.kpi h2{
+margin:5px 0 0;
+font-size:16px;
+color:#C6A75E;
+}
+
+/* GRID ESTRATÉGICO */
+.grid{
+display:grid;
+grid-template-columns:repeat(12,1fr);
+gap:20px;
+}
+
+.chart-box{
+background:#4B2E2B;
+padding:15px;
+border-radius:10px;
+}
+
+/* TAMANHOS DIFERENTES */
+.big{grid-column:span 6;height:320px;}
+.medium{grid-column:span 4;height:260px;}
+.small{grid-column:span 3;height:220px;}
+.full{grid-column:span 12;height:340px;}
+
+canvas{
+width:100% !important;
+height:100% !important;
+}
+</style>
+</head>
+<body>
+
+<header>Dashboard Cacau Show</header>
+
+<div class="container">
+
+<div class="kpis">
+<div class="kpi"><h4>Faturamento 2024</h4><h2>R$ 6,5 bi</h2></div>
+<div class="kpi"><h4>Crescimento</h4><h2>27,4%</h2></div>
+<div class="kpi"><h4>Lojas</h4><h2>4.200</h2></div>
+<div class="kpi"><h4>Margem</h4><h2>15%</h2></div>
+<div class="kpi"><h4>Ticket Médio</h4><h2>R$45</h2></div>
+<div class="kpi"><h4>Meta 2030</h4><h2>R$10 bi</h2></div>
+</div>
+
+<div class="grid">
+
+<div class="chart-box big"><canvas id="faturamento"></canvas></div>
+<div class="chart-box big"><canvas id="projecao"></canvas></div>
+
+<div class="chart-box medium"><canvas id="crescimento"></canvas></div>
+<div class="chart-box medium"><canvas id="lojas"></canvas></div>
+<div class="chart-box medium"><canvas id="capacidade"></canvas></div>
+
+<div class="chart-box medium"><canvas id="mix"></canvas></div>
+<div class="chart-box medium"><canvas id="sazonalidade"></canvas></div>
+<div class="chart-box medium"><canvas id="lojasRegiao"></canvas></div>
+
+<div class="chart-box full"><canvas id="franquia"></canvas></div>
+
+</div>
+
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const palette={
+primary:"#6B3E26",
+gold:"#C6A75E",
+light:"#F5EBDD",
+brown2:"#8B5E3C",
+brown3:"#A67C52"
+};
+
+const baseOptions=(title)=>({
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+title:{
+display:true,
+text:title,
+color:palette.light,
+font:{size:14,weight:'600'}
+},
+legend:{display:false},
+datalabels:{
+color:palette.light,
+anchor:'end',
+align:'top'
+}
+},
+scales:{
+x:{ticks:{color:palette.light},grid:{display:false}},
+y:{ticks:{color:palette.light},grid:{display:false}}
+}
+});
+
+/* GRÁFICOS */
+
+new Chart(faturamento,{
+type:'bar',
+data:{labels:['2022','2023','2024'],
+datasets:[{data:[4,5.1,6.5],backgroundColor:palette.primary}]},
+options:baseOptions("Crescimento de Faturamento (R$ bi)")
+});
+
+new Chart(projecao,{
+type:'line',
+data:{labels:['2025','2026','2027','2028','2029','2030'],
+datasets:[{data:[7.5,8.3,9,9.5,9.8,10],
+borderColor:palette.gold,
+backgroundColor:palette.gold,
+pointRadius:4,
+tension:.3}]},
+options:baseOptions("Projeção Estratégica (R$ bi)")
+});
+
+new Chart(crescimento,{
+type:'line',
+data:{labels:['2023','2024'],
+datasets:[{data:[27.5,27.4],
+borderColor:palette.gold,
+backgroundColor:palette.gold,
+pointRadius:4,
+tension:.3}]},
+options:baseOptions("Crescimento Percentual (%)")
+});
+
+new Chart(lojas,{
+type:'line',
+data:{labels:['2022','2023','2024'],
+datasets:[{data:[3300,3900,4200],
+borderColor:palette.primary,
+backgroundColor:palette.primary,
+pointRadius:4,
+tension:.3}]},
+options:baseOptions("Expansão de Lojas")
+});
+
+new Chart(capacidade,{
+type:'bar',
+data:{labels:['Capacidade Produtiva'],
+datasets:[{data:[70000],backgroundColor:palette.gold}]},
+options:{
+...baseOptions("Capacidade Produtiva (Ton)"),
+plugins:{
+...baseOptions("Capacidade Produtiva (Ton)").plugins,
+datalabels:{
+color:palette.light,
+anchor:'center',
+align:'center',
+formatter:(v)=>v.toLocaleString()+" Ton"
+}
+}
+}
+});
+
+new Chart(mix,{
+type:'doughnut',
+data:{labels:['Lojas','E-commerce','Corporativo'],
+datasets:[{data:[75,15,10],
+backgroundColor:[palette.primary,palette.gold,palette.brown2]}]},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+title:{display:true,text:"Mix de Receita (%)",color:palette.light},
+legend:{position:"bottom",labels:{color:palette.light}},
+datalabels:{color:palette.light,formatter:(v)=>v+"%"}
+}
+}
+});
+
+new Chart(sazonalidade,{
+type:'pie',
+data:{labels:['Páscoa','Natal','Namorados','Outros'],
+datasets:[{data:[30,20,8,42],
+backgroundColor:[palette.gold,palette.brown2,palette.primary,palette.brown3]}]},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+title:{display:true,text:"Sazonalidade da Receita (%)",color:palette.light},
+legend:{position:"bottom",labels:{color:palette.light}},
+datalabels:{color:palette.light,formatter:(v)=>v+"%"}
+}
+}
+});
+
+new Chart(lojasRegiao,{
+type:'pie',
+data:{
+labels:['Sudeste','Sul','Nordeste','Centro-Oeste','Norte'],
+datasets:[{
+data:[45,20,18,10,7],
+backgroundColor:[
+palette.gold,
+palette.primary,
+palette.brown2,
+palette.brown3,
+palette.brown2   // substituiu o palette.light (branco)
+]
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+title:{display:true,text:"Distribuição de Lojas por Região (%)",color:palette.light},
+legend:{position:"bottom",labels:{color:palette.light}},
+datalabels:{color:palette.light,formatter:(v)=>v+"%"}
+}
+}
+});
+
+new Chart(franquia,{
+type:'bar',
+data:{
+labels:['Container','Quiosque','Loja Padrão'],
+datasets:[
+{label:'Investimento',data:[65000,114000,310000],backgroundColor:palette.primary},
+{label:'Faturamento Anual',data:[800000,1000000,1400000],backgroundColor:palette.gold}
+]
+},
+options:{
+...baseOptions("Modelo de Franquia (Investimento x Faturamento)"),
+plugins:{
+...baseOptions("Modelo de Franquia (Investimento x Faturamento)").plugins,
+legend:{display:true,labels:{color:palette.light}},
+datalabels:{color:palette.light,formatter:(v)=>"R$ "+v.toLocaleString()}
+}
+}
+});
+</script>
+
+</body>
+</html>
